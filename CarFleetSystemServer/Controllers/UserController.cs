@@ -34,32 +34,81 @@ public class UserController : Controller
     }
 
     [HttpGet]
-    public JsonResult Prolong(string usertoken)
+    public Response Prolong([FromBody] string usertoken)
     {
-        throw new NotImplementedException();
+        LoggedInUser? user = DataStorage.Instance.LoggedInUsers.FirstOrDefault(x => x.UserToken == usertoken);
+        if (user is null) return new Response("User is not logged in", 2);
+        user.Prolong();
+        DataStorage.Instance.SaveChanges();
+        return new Response("", 0);
     }
 
     [HttpGet]
-    public JsonResult GetUsers(string usertoken)
+    public UserDataListResponse GetUsers([FromBody] string usertoken)
     {
-        throw new NotImplementedException();
+        LoggedInUser? user = DataStorage.Instance.LoggedInUsers.FirstOrDefault(x => x.UserToken == usertoken);
+        if (user is null) return new UserDataListResponse("User is not logged in", 2);
+        if (!user.User.Permission.ViewUserList)
+            return new UserDataListResponse("User has not permission to view users list", 3);
+        return new UserDataListResponse()
+        {
+            Users = DataStorage.Instance.Users.ToList()
+        };
     }
 
     [HttpPut]
-    public JsonResult AddUser(string usertoken, UserData data)
+    public Response AddUser([FromBody] string usertoken, [FromBody] UserData data)
     {
-        throw new NotImplementedException();
+        LoggedInUser? user = DataStorage.Instance.LoggedInUsers.FirstOrDefault(x => x.UserToken == usertoken);
+        if (user is null) return new Response("User is not logged in", 2);
+        if (!user.User.Permission.AddUser)
+            return new Response("User has not permission to add user", 4);
+        if (DataStorage.Instance.Users.FirstOrDefault(x => data.Username == x.Username) is not null)
+            return new Response("User with that username already exists", 5);
+        if (!user.User.Permission.SetPermissions)
+            data.Permission = new PermissionSet()
+            {
+                Root = false
+            };
+        DataStorage.Instance.Users.Add(data);
+        return new Response("", 0);
     }
 
     [HttpPost]
-    public JsonResult UpdateUser(string usertoken, string editedUsertoken, UserData data)
+    public Response UpdateUser([FromBody] string usertoken, [FromBody] string originalUsername, [FromBody] UserData data)
     {
-        throw new NotImplementedException();
+        LoggedInUser? user = DataStorage.Instance.LoggedInUsers.FirstOrDefault(x => x.UserToken == usertoken);
+        if (user is null) return new Response("User is not logged in", 2);
+        if (!user.User.Permission.EditUser)
+            return new Response("User has not permission to edit user", 6);
+        if (DataStorage.Instance.Users.FirstOrDefault(x => data.Username == x.Username) is not null)
+            return new Response("User with that username already exists", 5);
+        UserData? current = DataStorage.Instance.Users.FirstOrDefault(x => x.Username == originalUsername);
+        if (current is null)
+            return new Response("User with that username not exists", 7);
+        if (data.Permission != current.Permission && !user.User.Permission.SetPermissions)
+            return new Response("User do not have permission to edit permissions", 8);
+        if (!user.User.Permission.Root && (current.Permission.Root || data.Permission.Root))
+            return new Response("User without root cannot edit root users or promote them", 9);
+        current.Permission = data.Permission;
+        current.Password = data.Password;
+        current.Username = data.Username;
+        return new Response("", 0);
     }
 
     [HttpDelete]
-    public JsonResult DeleteUser(string usertoken, string editedUsertoken)
+    public Response DeleteUser([FromBody] string usertoken, [FromBody] string username)
     {
-        throw new NotImplementedException();
+        LoggedInUser? user = DataStorage.Instance.LoggedInUsers.FirstOrDefault(x => x.UserToken == usertoken);
+        if (user is null) return new Response("User is not logged in", 2);
+        if (!user.User.Permission.DeleteUser)
+            return new Response("User has not permission to delete user", 10);
+        UserData? current = DataStorage.Instance.Users.FirstOrDefault(x => x.Username == username);
+        if (current is null)
+            return new Response("User with that username not exists", 7);
+        if (!user.User.Permission.Root && current.Permission.Root)
+            return new Response("User without root cannot delete root users", 11);
+        DataStorage.Instance.Users.Remove(current);
+        return new Response("", 0);
     }
 }
