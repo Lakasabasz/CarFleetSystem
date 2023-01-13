@@ -5,14 +5,15 @@ using static BCrypt.Net.BCrypt;
 
 namespace CarFleetSystemServer.Controllers;
 
-[ApiController]
+[ApiController, Route("api/user/[action]")]
 public class UserController : Controller
 {
     [HttpPost]
-    public UserLoginResponse Login([FromBody] string username, [FromBody] string password)
+    public UserLoginResponse Login([FromBody] Credentials credentials)
     {
-        var user = DataStorage.Instance.Users.FirstOrDefault(x => x.Username == username);
-        if (user == null || !EnhancedVerify(user.Password, EnhancedHashPassword(password)))
+        
+        var user = DataStorage.Instance.Users.FirstOrDefault(x => x.Username == credentials.Username);
+        if (user == null || !EnhancedVerify(user.Password, EnhancedHashPassword(credentials.Password)))
             return new UserLoginResponse("User login and/or password are invalid", 1);
         var loggedIn = new LoggedInUser(user);
         DataStorage.Instance.LoggedInUsers.Add(loggedIn);
@@ -24,7 +25,7 @@ public class UserController : Controller
     }
 
     [HttpGet]
-    public Response Logout([FromBody] string usertoken)
+    public Response Logout([FromHeader(Name = "Token")] string usertoken)
     {
         LoggedInUser? user = DataStorage.Instance.LoggedInUsers.FirstOrDefault(x => x.UserToken == usertoken);
         if (user is null) return new Response("User is not logged in", 2);
@@ -34,7 +35,7 @@ public class UserController : Controller
     }
 
     [HttpGet]
-    public Response Prolong([FromBody] string usertoken)
+    public Response Prolong([FromHeader(Name = "Token")] string usertoken)
     {
         LoggedInUser? user = DataStorage.Instance.LoggedInUsers.FirstOrDefault(x => x.UserToken == usertoken);
         if (user is null) return new Response("User is not logged in", 2);
@@ -44,7 +45,7 @@ public class UserController : Controller
     }
 
     [HttpGet]
-    public UserDataListResponse GetUsers([FromBody] string usertoken)
+    public UserDataListResponse GetUsers([FromHeader(Name = "Token")] string usertoken)
     {
         LoggedInUser? user = DataStorage.Instance.LoggedInUsers.FirstOrDefault(x => x.UserToken == usertoken);
         if (user is null) return new UserDataListResponse("User is not logged in", 2);
@@ -57,7 +58,7 @@ public class UserController : Controller
     }
 
     [HttpPut]
-    public Response AddUser([FromBody] string usertoken, [FromBody] UserData data)
+    public Response AddUser([FromHeader(Name = "Token")] string usertoken, [FromBody] UserData data)
     {
         LoggedInUser? user = DataStorage.Instance.LoggedInUsers.FirstOrDefault(x => x.UserToken == usertoken);
         if (user is null) return new Response("User is not logged in", 2);
@@ -75,8 +76,10 @@ public class UserController : Controller
     }
 
     [HttpPost]
-    public Response UpdateUser([FromBody] string usertoken, [FromBody] string originalUsername, [FromBody] UserData data)
+    public Response UpdateUser([FromHeader(Name = "Token")] string usertoken, [FromBody] UserEditRequest request)
     {
+        string originalUsername = request.OriginalUsername;
+        UserData data = request.Data;
         LoggedInUser? user = DataStorage.Instance.LoggedInUsers.FirstOrDefault(x => x.UserToken == usertoken);
         if (user is null) return new Response("User is not logged in", 2);
         if (!user.User.Permission.EditUser)
@@ -97,8 +100,9 @@ public class UserController : Controller
     }
 
     [HttpDelete]
-    public Response DeleteUser([FromBody] string usertoken, [FromBody] string username)
+    public Response DeleteUser([FromHeader(Name = "Token")] string usertoken, [FromBody] UserDeleteRequest data)
     {
+        string username = data.Username;
         LoggedInUser? user = DataStorage.Instance.LoggedInUsers.FirstOrDefault(x => x.UserToken == usertoken);
         if (user is null) return new Response("User is not logged in", 2);
         if (!user.User.Permission.DeleteUser)

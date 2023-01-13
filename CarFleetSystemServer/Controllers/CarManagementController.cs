@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CarFleetSystemServer.Controllers;
 
-[ApiController]
+[ApiController, Route("api/fleet/[action]")]
 public class CarManagementController : Controller
 {
     [HttpGet]
