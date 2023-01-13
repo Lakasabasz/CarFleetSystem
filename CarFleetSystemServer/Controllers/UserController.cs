@@ -1,5 +1,7 @@
 ﻿using CarFleetSystemServer.Models;
 using Microsoft.AspNetCore.Mvc;
+using CarFleetSystemServer.Tools;
+using static BCrypt.Net.BCrypt;
 
 namespace CarFleetSystemServer.Controllers;
 
@@ -7,15 +9,28 @@ namespace CarFleetSystemServer.Controllers;
 public class UserController : Controller
 {
     [HttpPost]
-    public JsonResult Login(string username, string password)
+    public UserLoginResponse Login([FromBody] string username, [FromBody] string password)
     {
-        throw new NotImplementedException();
+        var user = DataStorage.Instance.Users.FirstOrDefault(x => x.Username == username);
+        if (user == null || !EnhancedVerify(user.Password, EnhancedHashPassword(password)))
+            return new UserLoginResponse("User login and/or password are invalid", 1);
+        var loggedIn = new LoggedInUser(user);
+        DataStorage.Instance.LoggedInUsers.Add(loggedIn);
+        DataStorage.Instance.SaveChanges();
+        return new UserLoginResponse()
+        {
+            UserToken = loggedIn.UserToken
+        };
     }
 
     [HttpGet]
-    public JsonResult Logout(string usertoken)
+    public Response Logout([FromBody] string usertoken)
     {
-        throw new NotImplementedException();
+        LoggedInUser? user = DataStorage.Instance.LoggedInUsers.FirstOrDefault(x => x.UserToken == usertoken);
+        if (user is null) return new Response("User is not logged in", 2);
+        DataStorage.Instance.LoggedInUsers.Remove(user);
+        DataStorage.Instance.SaveChanges();
+        return new Response("", 0);
     }
 
     [HttpGet]
