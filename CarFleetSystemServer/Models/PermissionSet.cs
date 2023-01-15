@@ -9,6 +9,12 @@ public class PermissionSet
     private bool _implicitDeleteUser;
     private bool _implicitEditUser;
     private bool _implicitSetPermissions;
+    private bool _implicitViewCarList;
+    private bool _implicitAddCar;
+    private bool _implicitEditCar;
+    private bool _implicitDeleteCar;
+    private bool _implicitViewCarDetails;
+    private bool _implicitUpdateCarDetails;
 
     public bool ViewUserList{
         get => Root || _implicitViewUserList;
@@ -51,6 +57,60 @@ public class PermissionSet
         set
         {
             if(!Root) _implicitSetPermissions = value;
+        }
+    }
+
+    public bool ViewCarList
+    {
+        get => Root || _implicitViewCarList;
+        set
+        {
+            if (!Root) _implicitViewCarList = value;
+        }
+    }
+
+    public bool AddCar 
+    {
+        get => Root || _implicitAddCar;
+        set
+        {
+            if (!Root) _implicitAddCar = value;
+        }
+    }
+    
+    public bool EditCar 
+    {
+        get => Root || _implicitEditCar;
+        set
+        {
+            if (!Root) _implicitEditCar = value;
+        }
+    }
+    
+    public bool DeleteCar 
+    {
+        get => Root || _implicitDeleteCar;
+        set
+        {
+            if (!Root) _implicitDeleteCar = value;
+        }
+    }
+    
+    public bool ViewCarDetails
+    {
+        get => Root || _implicitViewCarDetails;
+        set
+        {
+            if (!Root) _implicitViewCarDetails = value;
+        }
+    }
+    
+    public bool UpdateCarDetails
+    {
+        get => Root || _implicitUpdateCarDetails;
+        set
+        {
+            if (!Root) _implicitUpdateCarDetails = value;
         }
     }
 }

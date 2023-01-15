@@ -69,7 +69,7 @@ public class UserController : Controller
         LoggedInUser? user = DataStorage.Instance.LoggedInUsers.FirstOrDefault(x => x.UserToken == usertoken);
         if (user is null) return new UserDataListResponse("User is not logged in", 2);
         if (!user.User.Permission.ViewUserList)
-            return new UserDataListResponse("User has not permission to view users list", 3);
+            return new UserDataListResponse("User does not have permission to view users list", 3);
         var userList = DataStorage.Instance.Users.ToList();
         return new UserDataListResponse()
         {
@@ -83,7 +83,7 @@ public class UserController : Controller
         LoggedInUser? user = DataStorage.Instance.LoggedInUsers.FirstOrDefault(x => x.UserToken == usertoken);
         if (user is null) return new Response("User is not logged in", 2);
         if (!user.User.Permission.AddUser)
-            return new Response("User has not permission to add user", 4);
+            return new Response("User does not have permission to add user", 4);
         if (DataStorage.Instance.Users.FirstOrDefault(x => data.Username == x.Username) is not null)
             return new Response("User with that username already exists", 5);
         if (!user.User.Permission.SetPermissions)
@@ -103,7 +103,7 @@ public class UserController : Controller
         LoggedInUser? user = DataStorage.Instance.LoggedInUsers.FirstOrDefault(x => x.UserToken == usertoken);
         if (user is null) return new Response("User is not logged in", 2);
         if (!user.User.Permission.EditUser)
-            return new Response("User has not permission to edit user", 6);
+            return new Response("User does not have permission to edit user", 6);
         if (DataStorage.Instance.Users.FirstOrDefault(x => data.Username == x.Username) is not null
             && originalUsername != data.Username)
             return new Response("User with that username already exists", 5);
@@ -135,7 +135,7 @@ public class UserController : Controller
         LoggedInUser? user = DataStorage.Instance.LoggedInUsers.FirstOrDefault(x => x.UserToken == usertoken);
         if (user is null) return new Response("User is not logged in", 2);
         if (!user.User.Permission.DeleteUser)
-            return new Response("User has not permission to delete user", 10);
+            return new Response("User does not have permission to delete user", 10);
         UserData? current = DataStorage.Instance.Users.FirstOrDefault(x => x.Username == username);
         if (current is null)
             return new Response("User with that username not exists", 7);

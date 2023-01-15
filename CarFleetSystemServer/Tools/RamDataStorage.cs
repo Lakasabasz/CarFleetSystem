@@ -12,7 +12,8 @@ public class RamDataStorage: IDataStorage
 
     public ICollection<UserData> Users { get; }
     public ICollection<LoggedInUser> LoggedInUsers { get; }
-    
+    public IEnumerable<CarData> Cars { get; set; }
+
     public void SaveChanges()
     {
         for (int i = 0; i < LoggedInUsers.Count; i++)
