@@ -7,8 +7,8 @@ namespace CarFleetSystemServer.Controllers;
 [ApiController, Route("api/fleet/[action]")]
 public class CarManagementController : Controller
 {
-    [HttpGet("/")]
-    public CarListResponse Index([FromHeader(Name = "Token")] string usertoken) // List all cars
+    [HttpGet]
+    public CarListResponse List([FromHeader(Name = "Token")] string usertoken) // List all cars
     {
         var user = DataStorage.Instance.LoggedInUsers.FirstOrDefault(x => x.UserToken == usertoken);
         if (user is null) return new CarListResponse("User are not logged in", 100);
@@ -21,18 +21,18 @@ public class CarManagementController : Controller
     }
 
     [HttpPut]
-    public Response AddCar([FromHeader(Name = "Token")] string usertoken, [FromBody] CarData data)
+    public AddCarResponse AddCar([FromHeader(Name = "Token")] string usertoken, [FromBody] CarData data)
     {
         var user = DataStorage.Instance.LoggedInUsers.FirstOrDefault(x => x.UserToken == usertoken);
-        if (user is null) return new Response("User are not logged in", 100);
+        if (user is null) return new AddCarResponse("User are not logged in", 100);
         if (!user.User.Permission.AddCar)
-            return new Response("User does not have permission to add new car", 102);
+            return new AddCarResponse("User does not have permission to add new car", 102);
         if (data.Id.HasValue && DataStorage.Instance.Cars.FirstOrDefault(x => x.Id == data.Id) is not null)
-            return new Response("Car already exists", 103);
-        data.Id ??= DataStorage.Instance.Cars.Max(x => x.Id) + 1;
+            return new AddCarResponse("Car already exists", 103);
+        data.Id ??= (DataStorage.Instance.Cars.Max(x => x.Id) ?? 0) + 1;
         DataStorage.Instance.Cars.Add(data);
         DataStorage.Instance.CarDetails.Add(new CarDetails(data));
-        return new Response("", 0);
+        return new AddCarResponse() { CreatedId = data.Id.Value };
     }
 
     [HttpPost]
