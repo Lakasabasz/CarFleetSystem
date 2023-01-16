@@ -8,11 +8,14 @@ public class RamDataStorage: IDataStorage
     {
         LoggedInUsers = new List<LoggedInUser>();
         Users = new List<UserData>();
+        Cars = new List<CarData>();
+        CarDetails = new List<CarDetails>();
     }
 
     public ICollection<UserData> Users { get; }
     public ICollection<LoggedInUser> LoggedInUsers { get; }
-    public IEnumerable<CarData> Cars { get; set; }
+    public ICollection<CarData> Cars { get; }
+    public ICollection<CarDetails> CarDetails { get; }
 
     public void SaveChanges()
     {

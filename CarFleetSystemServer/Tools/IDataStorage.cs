@@ -6,7 +6,8 @@ public interface IDataStorage
 {
     ICollection<UserData> Users { get; }
     ICollection<LoggedInUser> LoggedInUsers { get; }
-    IEnumerable<CarData> Cars { get; set; }
+    ICollection<CarData> Cars { get; }
+    ICollection<CarDetails> CarDetails { get; }
 
     void SaveChanges();
 }
