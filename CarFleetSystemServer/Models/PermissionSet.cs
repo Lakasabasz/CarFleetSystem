@@ -15,6 +15,10 @@ public class PermissionSet
     private bool _implicitDeleteCar;
     private bool _implicitViewCarDetails;
     private bool _implicitUpdateCarDetails;
+    private bool _implicitViewAvailableCarList;
+    private bool _implicitClaimCar;
+    private bool _implicitReleaseCar;
+    private bool _implicitUpdateCar;
 
     public bool ViewUserList{
         get => Root || _implicitViewUserList;
@@ -111,6 +115,41 @@ public class PermissionSet
         set
         {
             if (!Root) _implicitUpdateCarDetails = value;
+        }
+    }
+
+    public bool ViewAvailableCarList { 
+        get => Root || _implicitViewAvailableCarList;
+        set
+        {
+            if (!Root) _implicitViewAvailableCarList = value;
+        }
+    }
+
+    public bool ClaimCar
+    {
+        get => Root || _implicitClaimCar;
+        set
+        {
+            if (!Root) _implicitClaimCar = value;
+        }
+    }
+    
+    public bool ReleaseCar
+    {
+        get => Root || _implicitClaimCar;
+        set
+        {
+            if (!Root) _implicitClaimCar = value;
+        }
+    }
+    
+    public bool UpdateCar
+    {
+        get => Root || _implicitUpdateCar;
+        set
+        {
+            if (!Root) _implicitUpdateCar = value;
         }
     }
 }

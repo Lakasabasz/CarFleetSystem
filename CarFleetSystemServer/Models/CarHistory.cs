@@ -7,6 +7,7 @@ public class CarHistory
     private ICollection<CarPosition> PositionHistory { get; set; }
     private UserData? Claimer { get; set; }
     private DateTime? ClaimedSince { get; set; }
+    private DateTime? LastUpdate { get; set; }
     private ICollection<ClaimRecord> ClaimHistory { get; set; }
 
     public CarHistory()
@@ -34,5 +35,32 @@ public class CarHistory
             W = PositionHistory.LastOrDefault()?.W,
             RegisteredDistance = distance
         };
+    }
+
+    public bool IsClaimed() => Claimer is not null;
+    public void Claim(UserData user)
+    {
+        if (Claimer is not null)
+            throw new ArgumentException("Claiming failed due to car already claimed");
+        Claimer = user;
+        ClaimedSince = DateTime.Now;
+        LastUpdate = DateTime.Now;
+    }
+
+    public bool IsClaimedBy(UserData user) => Claimer != null && Claimer.Username == user.Username;
+
+    public void Update(TelemetryData data)
+    {
+        LastUpdate = data.Date;
+        PositionHistory.Add(new CarPosition(){H = data.H, W = data.W, UpdateTime = data.Date});
+    }
+
+    public void Release()
+    {
+        if (Claimer is null || ClaimedSince is null)
+            throw new ArgumentNullException(nameof(Claimer));
+        ClaimHistory.Add(new ClaimRecord(){Claimer = Claimer, Start = ClaimedSince.Value, End = DateTime.Now});
+        Claimer = null;
+        ClaimedSince = null;
     }
 }
