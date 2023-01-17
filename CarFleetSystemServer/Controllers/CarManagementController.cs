@@ -100,12 +100,10 @@ public class CarManagementController : Controller
             return new CarDetailsResponse("User does not have permission to edit car details", 110);
         var details = DataStorage.Instance.CarDetails.FirstOrDefault(x => x.CarDataId == updateRequest.CarId);
         if(details is null) return new CarDetailsResponse("Car details does not exists", 109);
-        if (details.CarDataId != updateRequest.Data.CarDataId)
-            return new Response("User cannot change details id using this endpoint", 111);
-        details.Details.Description = updateRequest.Data.Details.Description;
-        details.Details.CarColor = updateRequest.Data.Details.CarColor;
-        details.Details.InsuranceEnding = updateRequest.Data.Details.InsuranceEnding;
-        details.Details.NextCarReview = updateRequest.Data.Details.NextCarReview;
+        details.Details.Description = updateRequest.Data.Description;
+        details.Details.CarColor = updateRequest.Data.CarColor;
+        details.Details.InsuranceEnding = updateRequest.Data.InsuranceEnding;
+        details.Details.NextCarReview = updateRequest.Data.NextCarReview;
         return new Response("", 0);
     }
 }

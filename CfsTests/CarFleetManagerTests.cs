@@ -1,19 +1,22 @@
-﻿using System.Net.Sockets;
+﻿using System.Drawing;
+using System.Net.Sockets;
 using CarFleetSystemServer.Models;
 using Newtonsoft.Json;
-using NUnit.Framework;
 using System.Net.Http.Headers;
+using Color = CarFleetSystemServer.Models.Color;
 
 namespace CfsTests;
 
 [TestFixture]
 public class CarFleetManagerTests
 {
+    private static int i = 0;
     private HttpClient _client;
 
     public CarFleetManagerTests()
     {
         _client = new HttpClient();
+        i++;
     }
 
     private async Task _setupRoot()
@@ -29,6 +32,8 @@ public class CarFleetManagerTests
             Assert.Fail($"Root login error: {uresp?.ErrorDescription ?? "null"}");
             return;
         }
+
+        if (_client.DefaultRequestHeaders.Contains("Token")) _client.DefaultRequestHeaders.Remove("Token");
         _client.DefaultRequestHeaders.Add("Token", uresp.UserToken);
     }
     
@@ -112,7 +117,7 @@ public class CarFleetManagerTests
     public async Task DeleteCarTest()
     {
         CarData cd = new CarData()
-            { Mark = "E", Model = "C", Plates = $"ED {new Random().Next(99999)}", Vin = "D" };
+            { Mark = "E", Model = "C", Plates = $"DE {new Random().Next(99999)}", Vin = "D" };
         int id = await _addTemplateCar(cd);
         StringContent sc = new StringContent(JsonConvert.SerializeObject(new CarDeleteRequest() { Id = id }),
             MediaTypeHeaderValue.Parse("application/json"));
@@ -129,13 +134,48 @@ public class CarFleetManagerTests
     [Test]
     public async Task GetDetailsCarTest()
     {
-        Assert.Fail("NotImplemented");
+        CarData cd = new CarData()
+            { Mark = "E", Model = "C", Plates = $"GD {new Random().Next(99999)}", Vin = "D" };
+        int id = await _addTemplateCar(cd);
+        StringContent sc = new StringContent(JsonConvert.SerializeObject(new CarDetailsRequest() { Id = id }),
+            MediaTypeHeaderValue.Parse("application/json"));
+        var resp = await _client.SendAsync(
+            new HttpRequestMessage(HttpMethod.Get, "https://localhost:7080/api/fleet/GetCarDetails")
+            {
+                Content = sc
+            });
+        CarDetailsResponse? response =
+            JsonConvert.DeserializeObject<CarDetailsResponse>(await resp.Content.ReadAsStringAsync());
+        Assert.IsNotNull(response);
+        Assert.That(response?.ErrorCode, Is.EqualTo(0));
+        Assert.IsNotNull(response?.Report.Details);
+        Assert.IsNotNull(response?.Report.Summary);
     }
     
     [Test]
     public async Task UpdateDetailsCarTest()
     {
-        Assert.Fail("NotImplemented");
+        CarData cd = new CarData()
+            { Mark = "E", Model = "C", Plates = $"UD {new Random().Next(99999)}", Vin = "D" };
+        int id = await _addTemplateCar(cd);
+        StringContent sc = new StringContent(JsonConvert.SerializeObject(new CarDetailsUpdateRequest()
+            {
+                CarId = id, Data = new CarDetailsData()
+                {
+                    Description = "Description", CarColor = Color.Convert(System.Drawing.Color.Black), 
+                    InsuranceEnding = DateOnly.FromDateTime(DateTime.Now.AddYears(1)),
+                    NextCarReview = DateOnly.FromDateTime(DateTime.Now.AddYears(1))
+                }
+            }),
+            MediaTypeHeaderValue.Parse("application/json"));
+        var resp = await _client.SendAsync(
+            new HttpRequestMessage(HttpMethod.Post, "https://localhost:7080/api/fleet/UpdateCarDetails")
+            {
+                Content = sc
+            });
+        Response? response = JsonConvert.DeserializeObject<Response>(await resp.Content.ReadAsStringAsync());
+        Assert.IsNotNull(response);
+        Assert.That(response?.ErrorCode, Is.EqualTo(0), response?.ErrorDescription);
     }
 
 }

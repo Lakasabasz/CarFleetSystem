@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace CarFleetSystemServer.Models;
+﻿namespace CarFleetSystemServer.Models;
 
 public class CarDetailsData
 {

@@ -3,5 +3,5 @@
 public class CarDetailsUpdateRequest
 {
     public int CarId { get; set; }
-    public CarDetails Data { get; set; }
+    public CarDetailsData Data { get; set; }
 }
