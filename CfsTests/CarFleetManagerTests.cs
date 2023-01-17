@@ -10,13 +10,11 @@ namespace CfsTests;
 [TestFixture]
 public class CarFleetManagerTests
 {
-    private static int i = 0;
     private HttpClient _client;
 
     public CarFleetManagerTests()
     {
         _client = new HttpClient();
-        i++;
     }
 
     private async Task _setupRoot()
