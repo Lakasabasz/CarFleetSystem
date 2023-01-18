@@ -7,4 +7,10 @@
         <UseWPF>true</UseWPF>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
+      <PackageReference Include="Mapsui" Version="3.0.2" />
+      <PackageReference Include="Mapsui.Wpf" Version="3.0.2" />
+    </ItemGroup>
+
 </Project>
