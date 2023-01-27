@@ -10,6 +10,7 @@
     <ItemGroup>
       <PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
       <PackageReference Include="Mapsui.Wpf" Version="4.0.0-beta.6" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     </ItemGroup>
 
 </Project>

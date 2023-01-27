@@ -6,9 +6,9 @@
         xmlns:mapsui="clr-namespace:Mapsui.UI.Wpf;assembly=Mapsui.UI.Wpf"
         xmlns:local="clr-namespace:CarFleetManager"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="800" d:DataContext="{d:DesignInstance local:MainWindowCtx}">
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        <UserControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Visibility="Collapsed">
+        <UserControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Visibility="{Binding LoginVisible}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
@@ -32,36 +32,41 @@
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Login" Margin="5" />
-                    <TextBox Grid.Row="0" Grid.Column="1" MinWidth="100"  Margin="5"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" MinWidth="100" Text="{Binding LoginText, UpdateSourceTrigger=PropertyChanged, Mode=OneWayToSource}" Margin="5"/>
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Hasło"  Margin="5" />
-                    <PasswordBox Grid.Row="1" Grid.Column="1"  Margin="5"></PasswordBox>
-                    <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Content="Zaloguj" Margin="5" />
+                    <PasswordBox Grid.Row="1" Grid.Column="1" PasswordChanged="PasswordBox_OnPasswordChanged" Margin="5"></PasswordBox>
+                    <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Content="Zaloguj" Margin="5" IsEnabled="{Binding IsLoginButtonEnabled}" Click="LoginButton_OnClick"/>
                 </Grid>
             </Grid>
         </UserControl>
-        <UserControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <UserControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Visibility="{Binding ManagerVisible}">
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*" />
                     <ColumnDefinition Width="5*" />
                 </Grid.ColumnDefinitions>
                 <TabControl>
-                    <TabItem Header="Użytkownicy">
+                    <TabItem Header="Użytkownicy" Visibility="{Binding UserTabVisibility}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
                             <StackPanel Orientation="Horizontal">
-                                <Button Content="➕" Margin="0, 0, 1, 0"/>
-                                <Button Content="➖" Margin="1, 0, 1, 0"/>
-                                <Button Content="✏" Margin="1, 0, 0, 0"/>
+                                <Button Content="➕" Margin="0, 0, 1, 0" IsEnabled="{Binding CurrentLoggedInUser.Permission.AddUser}" Click="AddUser_OnClick"/>
+                                <Button Content="➖" Margin="1, 0, 1, 0" IsEnabled="{Binding CurrentLoggedInUser.Permission.DeleteUser}" Click="DeleteUser_OnClick"/>
+                                <Button Content="🔄" Margin="1, 0, 0, 0" Click="RefreshUserList_OnClick"/>
                             </StackPanel>
-                            <ListView Grid.Row="1">
+                            <ListView Grid.Row="1" ItemsSource="{Binding Users}" SelectedIndex="{Binding CurrentUserIndex}" SelectedItem="{Binding CurrentUser}">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Username}"/>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
                             </ListView>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="Pojazdy">
+                    <TabItem Header="Pojazdy" Visibility="{Binding CarTabVisibility}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
@@ -77,9 +82,9 @@
                         </Grid>
                     </TabItem>
                 </TabControl>
-                <UserControl Grid.Column="1" Visibility="Collapsed">
+                <UserControl Grid.Column="1" Visibility="{Binding UserTabVisibility}">
                     <StackPanel>
-                        <TextBox FontSize="20" FontWeight="Bold" Margin="0 0 5 0"/>
+                        <TextBox FontSize="20" FontWeight="Bold" Margin="0 0 5 0" Text="{Binding CurrentUser.Username, FallbackValue=''}"/>
                         <Separator Margin="0 5" />
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -92,18 +97,62 @@
                                 <RowDefinition Height="1*" />
                                 <RowDefinition Height="1*" />
                                 <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
                                 <RowDefinition Height="*" MaxHeight="50" />
                                 <RowDefinition Height="1*" />
                             </Grid.RowDefinitions>
                             <TextBlock Text="Hasło" />
-                            <PasswordBox Grid.Column="2" Grid.Row="0" />
+                            <PasswordBox Name="UserPassword" Grid.Column="2" Grid.Row="0" PasswordChanged="UserPasswordBox_OnPasswordChanged" />
                             <TextBlock Grid.Column="0" Grid.Row="1" Text="Administrator" />
-                            <CheckBox Grid.Column="2" Grid.Row="1" />
-                            <Button Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="4" Content="Zapisz"/>
+                            <CheckBox Grid.Column="2" Grid.Row="1" IsChecked="{Binding CurrentUser.Permission.Root, FallbackValue=false}" />
+                            <TextBlock Grid.Column="0" Grid.Row="2" Text="Wyświetlanie listy użytkowników" />
+                            <CheckBox Grid.Column="2" Grid.Row="2" IsChecked="{Binding CurrentUser.Permission.ViewUserList, FallbackValue=false}" />
+                            <TextBlock Grid.Column="0" Grid.Row="3" Text="Dodawanie użytkownika" />
+                            <CheckBox Grid.Column="2" Grid.Row="3" IsChecked="{Binding CurrentUser.Permission.AddUser, FallbackValue=false}" />
+                            <TextBlock Grid.Column="0" Grid.Row="4" Text="Usuwanie użytkowników" />
+                            <CheckBox Grid.Column="2" Grid.Row="4" IsChecked="{Binding CurrentUser.Permission.DeleteUser, FallbackValue=false}" />
+                            <TextBlock Grid.Column="0" Grid.Row="5" Text="Edytowanie użytkowników" />
+                            <CheckBox Grid.Column="2" Grid.Row="5" IsChecked="{Binding CurrentUser.Permission.EditUser, FallbackValue=false}" />
+                            <TextBlock Grid.Column="0" Grid.Row="6" Text="Zarządzanie uprawnieniami" />
+                            <CheckBox Grid.Column="2" Grid.Row="6" IsChecked="{Binding CurrentUser.Permission.SetPermissions, FallbackValue=false}" />
+                            <TextBlock Grid.Column="0" Grid.Row="7" Text="Wyświetlanie listy samochodów" />
+                            <CheckBox Grid.Column="2" Grid.Row="7" IsChecked="{Binding CurrentUser.Permission.ViewCarList, FallbackValue=false}" />
+                            <TextBlock Grid.Column="0" Grid.Row="8" Text="Dodawanie samochodu" />
+                            <CheckBox Grid.Column="2" Grid.Row="8" IsChecked="{Binding CurrentUser.Permission.AddCar, FallbackValue=false}" />
+                            <TextBlock Grid.Column="0" Grid.Row="9" Text="Edytowanie samochodu" />
+                            <CheckBox Grid.Column="2" Grid.Row="9" IsChecked="{Binding CurrentUser.Permission.EditCar, FallbackValue=false}" />
+                            <TextBlock Grid.Column="0" Grid.Row="10" Text="Usuwanie samochodu" />
+                            <CheckBox Grid.Column="2" Grid.Row="10" IsChecked="{Binding CurrentUser.Permission.DeleteCar, FallbackValue=false}" />
+                            <TextBlock Grid.Column="0" Grid.Row="11" Text="Wyświetlanie szczegółów samochodu" />
+                            <CheckBox Grid.Column="2" Grid.Row="11" IsChecked="{Binding CurrentUser.Permission.ViewCarDetails, FallbackValue=false}" />
+                            <TextBlock Grid.Column="0" Grid.Row="12" Text="Aktualizacja szczegółów samochodu" />
+                            <CheckBox Grid.Column="2" Grid.Row="12" IsChecked="{Binding CurrentUser.Permission.UpdateCarDetails, FallbackValue=false}" />
+                            <TextBlock Grid.Column="0" Grid.Row="13" Text="Wyświetlanie dostępnych samochodów" />
+                            <CheckBox Grid.Column="2" Grid.Row="13" IsChecked="{Binding CurrentUser.Permission.ViewAvailableCarList, FallbackValue=false}" />
+                            <TextBlock Grid.Column="0" Grid.Row="14" Text="Zajmowanie samochodu" />
+                            <CheckBox Grid.Column="2" Grid.Row="14" IsChecked="{Binding CurrentUser.Permission.ClaimCar, FallbackValue=false}" />
+                            <TextBlock Grid.Column="0" Grid.Row="15" Text="Zwalnianie samochodu" />
+                            <CheckBox Grid.Column="2" Grid.Row="15" IsChecked="{Binding CurrentUser.Permission.ReleaseCar, FallbackValue=false}" />
+                            <TextBlock Grid.Column="0" Grid.Row="16" Text="Aktualizacja stanu samochodu" />
+                            <CheckBox Grid.Column="2" Grid.Row="16" IsChecked="{Binding CurrentUser.Permission.UpdateCar, FallbackValue=false}" />
+                            <Button Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="18" Content="Zapisz" IsEnabled="{Binding CurrentLoggedInUser.Permission.EditUser}" Click="EditUser_OnClick"/>
                         </Grid>
                     </StackPanel>
                 </UserControl>
-                <UserControl Grid.Column="1">
+                <UserControl Grid.Column="1" Visibility="{Binding CarTabVisibility}">
                     <DockPanel LastChildFill="True">
                         <Grid DockPanel.Dock="Top">
                             <Grid.RowDefinitions>
