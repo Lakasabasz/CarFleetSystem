@@ -31,8 +31,8 @@ public partial class MainWindowCtx: INotifyPropertyChanged
 
     public ObservableCollection<UserData> Users { get; set; } = new ();
 
-    private Task? _updateUserListTask;
     private int _currentUserIndex;
+    private bool _userTabActive;
 
     public UserData? CurrentUser
     {
@@ -63,6 +63,19 @@ public partial class MainWindowCtx: INotifyPropertyChanged
             }
             _currentUserIndex = value;
             OnPropertyChanged();
+        }
+    }
+    
+    public Visibility UserTabActiveVisibility => UserTabActive ? Visibility.Visible : Visibility.Collapsed;
+
+    public bool UserTabActive
+    {
+        get => _userTabActive;
+        set
+        {
+            if (value == _userTabActive) return;
+            _userTabActive = value;
+            OnPropertyChanged(nameof(UserTabActiveVisibility));
         }
     }
 

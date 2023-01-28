@@ -96,5 +96,20 @@ namespace CarFleetManager
             if (_editUserTask is null || _editUserTask.IsCompleted)
                 _editUserTask = ((MainWindowCtx)DataContext).EditOrAddCurrentUser();
         }
+
+        private void AddCar_OnClick(object sender, RoutedEventArgs e)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        private void DeleteCar_OnClick(object sender, RoutedEventArgs e)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        private void RefreshCarList_OnClick(object sender, RoutedEventArgs e)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -8,6 +10,9 @@ namespace CarFleetManager;
 
 public partial class MainWindowCtx
 {
+    private Task? _updateUserListTask;
+    private Task? _updateCarListTask;
+
     public async Task Login()
     {
         bool result = await ApiClient.Login(LoginText, PasswordText);
@@ -20,6 +25,39 @@ public partial class MainWindowCtx
         }
 
         if (_updateUserListTask is null || _updateUserListTask.IsCompleted) _updateUserListTask = UpdateUserList();
+        if (_updateCarListTask is null || _updateCarListTask.IsCompleted) _updateCarListTask = UpdateCarListTask();
+    }
+
+    public ObservableCollection<CarData> Cars { get; set; } = new();
+
+    private async Task UpdateCarListTask()
+    {
+        var (result, listCars) = await ApiClient.ListCars();
+        if (result)
+        {
+            CarTabAccess = true;
+            Dictionary<CarData, CarData?> compareMap = new();
+            foreach (var newCar in listCars)
+            {
+                var user = Cars.FirstOrDefault(x => x.Id == newCar.Id);
+                compareMap.Add(newCar, user);
+            }
+
+            foreach (var car in Cars)
+            {
+                if (!compareMap.Any(x => x.Value == car)) Cars.Remove(car);
+                var match = compareMap.FirstOrDefault(x => x.Value == car);
+                int index = Cars.IndexOf(match.Value!);
+                Cars[index].Mark = match.Key.Mark;
+                Cars[index].Model = match.Key.Model;
+                Cars[index].Plates = match.Key.Plates;
+                Cars[index].Vin = match.Key.Vin;
+            }
+
+            foreach (var (key, value) in compareMap)
+                if (value is null)
+                    Cars.Add(key);
+        }
     }
 
     public async Task UpdateUserList()

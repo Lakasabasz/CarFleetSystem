@@ -127,4 +127,19 @@ public class ApiClient
 
         return true;
     }
+
+    public static async Task<(bool, List<CarData>)> ListCars()
+    {
+        var resp = await _client.GetAsync("https://localhost:7080/api/fleet/List");
+        var definition = new { ErrorDescription = "", ErrorCode = 0, Cars = new List<CarData>() };
+        var parsed = JsonConvert.DeserializeAnonymousType(await resp.Content.ReadAsStringAsync(), definition);
+        if (parsed is null) return (false, new List<CarData>());
+        if (parsed.ErrorCode != 0)
+        {
+            Console.Error.WriteLine($"Cars list fetch error: {parsed.ErrorCode}; description: {parsed.ErrorDescription}");
+            return (false, new List<CarData>());
+        }
+
+        return (true, parsed.Cars);
+    }
 }

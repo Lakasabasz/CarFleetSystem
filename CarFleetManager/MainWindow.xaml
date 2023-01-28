@@ -46,7 +46,7 @@
                     <ColumnDefinition Width="5*" />
                 </Grid.ColumnDefinitions>
                 <TabControl>
-                    <TabItem Header="Użytkownicy" Visibility="{Binding UserTabVisibility}">
+                    <TabItem Header="Użytkownicy" Visibility="{Binding UserTabVisibility}" IsSelected="{Binding UserTabActive}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
@@ -66,23 +66,28 @@
                             </ListView>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="Pojazdy" Visibility="{Binding CarTabVisibility}">
+                    <TabItem Header="Pojazdy" Visibility="{Binding CarTabVisibility}" IsSelected="{Binding CarTabActive}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
                             <StackPanel Orientation="Horizontal">
-                                <Button Content="➕" Margin="0, 0, 1, 0"/>
-                                <Button Content="➖" Margin="1, 0, 1, 0"/>
-                                <Button Content="✏" Margin="1, 0, 0, 0"/>
+                                <Button Content="➕" Margin="0, 0, 1, 0" Click="AddCar_OnClick"/>
+                                <Button Content="➖" Margin="1, 0, 1, 0" Click="DeleteCar_OnClick"/>
+                                <Button Content="🔄" Margin="1, 0, 0, 0" Click="RefreshCarList_OnClick"/>
                             </StackPanel>
-                            <ListView Grid.Row="1">
+                            <ListView ItemsSource="{Binding Cars}" Grid.Row="1" SelectedIndex="{Binding CurrentCarIndex}" SelectedItem="{Binding CurrentCar}">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Plates}"/>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
                             </ListView>
                         </Grid>
                     </TabItem>
                 </TabControl>
-                <UserControl Grid.Column="1" Visibility="{Binding UserTabVisibility}">
+                <UserControl Grid.Column="1" Visibility="{Binding UserTabActiveVisibility}">
                     <StackPanel>
                         <TextBox FontSize="20" FontWeight="Bold" Margin="0 0 5 0" Text="{Binding CurrentUser.Username, FallbackValue=''}"/>
                         <Separator Margin="0 5" />
@@ -152,7 +157,7 @@
                         </Grid>
                     </StackPanel>
                 </UserControl>
-                <UserControl Grid.Column="1" Visibility="{Binding CarTabVisibility}">
+                <UserControl Grid.Column="1" Visibility="{Binding CarTabActiveVisibility}">
                     <DockPanel LastChildFill="True">
                         <Grid DockPanel.Dock="Top">
                             <Grid.RowDefinitions>
