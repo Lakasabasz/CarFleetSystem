@@ -99,17 +99,31 @@ namespace CarFleetManager
 
         private void AddCar_OnClick(object sender, RoutedEventArgs e)
         {
-            throw new System.NotImplementedException();
+            ((MainWindowCtx)DataContext).AddNewCar();
         }
 
+        private Task? _deleteCarTask;
         private void DeleteCar_OnClick(object sender, RoutedEventArgs e)
         {
-            throw new System.NotImplementedException();
+            if (_deleteCarTask is null || _deleteCarTask.IsCompleted)
+                _deleteCarTask = ((MainWindowCtx)DataContext).DeleteCurrentCar();
         }
 
+        private Task? _refreshCarsTask;
+        private Task? _refreshCarDetailsTask;
         private void RefreshCarList_OnClick(object sender, RoutedEventArgs e)
         {
-            throw new System.NotImplementedException();
+            if (_refreshCarsTask is null || _refreshCarsTask.IsCompleted)
+                _refreshCarsTask = ((MainWindowCtx)DataContext).UpdateCarListTask();
+            if(_refreshCarDetailsTask is null || _refreshCarDetailsTask.IsCompleted)
+                _refreshCarDetailsTask = ((MainWindowCtx)DataContext).FetchCurrentCarDetails();
+        }
+
+        private Task? _saveCarTask;
+        private void SaveCurrentCar_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (_saveCarTask is null || _saveCarTask.IsCompleted)
+                _saveCarTask = ((MainWindowCtx)DataContext).EditOrAddCurrentCar();
         }
     }
 }

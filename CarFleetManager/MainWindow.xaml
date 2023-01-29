@@ -172,13 +172,13 @@
                                 <ColumnDefinition Width="2*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Marka"/>
-                            <TextBox  Grid.Row="0" Grid.Column="1" />
+                            <TextBox  Grid.Row="0" Grid.Column="1" Text="{Binding CurrentCar.Mark, FallbackValue='', UpdateSourceTrigger=PropertyChanged}" />
                             <TextBlock Grid.Row="0" Grid.Column="3" Text="Model"/>
-                            <TextBox  Grid.Row="0" Grid.Column="4" />
+                            <TextBox  Grid.Row="0" Grid.Column="4"  Text="{Binding CurrentCar.Model, FallbackValue='', UpdateSourceTrigger=PropertyChanged}"/>
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Numer rejestracyjny"/>
-                            <TextBox  Grid.Row="1" Grid.Column="1" />
+                            <TextBox  Grid.Row="1" Grid.Column="1"  Text="{Binding CurrentCar.Plates, FallbackValue='', UpdateSourceTrigger=PropertyChanged}"/>
                             <TextBlock Grid.Row="1" Grid.Column="3" Text="Numer VIN"/>
-                            <TextBox  Grid.Row="1" Grid.Column="4" />
+                            <TextBox  Grid.Row="1" Grid.Column="4"  Text="{Binding CurrentCar.Vin, FallbackValue='', UpdateSourceTrigger=PropertyChanged}"/>
                         </Grid>
                         <Separator DockPanel.Dock="Top" />
                         <Grid DockPanel.Dock="Top">
@@ -195,15 +195,18 @@
                                 <ColumnDefinition Width="1*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="Opis" Grid.Column="0" Grid.Row="0"/>
-                            <TextBox TextWrapping="Wrap" Grid.Column="1" Grid.ColumnSpan="4" Grid.Row="0" />
+                            <TextBox TextWrapping="Wrap" Grid.Column="1" Grid.ColumnSpan="4" Grid.Row="0" Text="{Binding CurrentCarDetails.Description, FallbackValue='', UpdateSourceTrigger=PropertyChanged}" />
                             <TextBlock Text="Data najbliższego przeglądu" Grid.Column="0" Grid.Row="1" />
-                            <DatePickerTextBox Grid.Column="1" Grid.Row="1" />
+                            <DatePicker Grid.Column="1" Grid.Row="1" SelectedDate="{Binding CurrentCarDetails.NextCarReview, FallbackValue='', UpdateSourceTrigger=PropertyChanged}" />
                             <TextBlock Text="Data końca ubezpieczenia" Grid.Column="3" Grid.Row="1"/>
-                            <DatePickerTextBox Grid.Column="4" Grid.Row="1" />
+                            <DatePicker Grid.Column="4" Grid.Row="1" SelectedDate="{Binding CurrentCarDetails.InsuranceEnding, FallbackValue='', UpdateSourceTrigger=PropertyChanged}" />
                             <TextBlock Text="Kolor" Grid.Column="0" Grid.Row="2" />
-                            <TextBox Grid.Column="1" Grid.Row="2" Text="#FFFFFF" />
+                            <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding CurrentCarDetails.CarColor, FallbackValue='', UpdateSourceTrigger=PropertyChanged}" />
                         </Grid>
                         <Separator DockPanel.Dock="Top"/>
+                        <Grid DockPanel.Dock="Top">
+                            <Button Content="Zapisz" Click="SaveCurrentCar_OnClick"/>
+                        </Grid>
                         <Grid DockPanel.Dock="Top">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
